@@ -9,6 +9,7 @@ use AutoScaler\Kubernetes\Nodes;
 use AutoScaler\Scale;
 use AutoScaler\Counter;
 use AutoScaler\Linode\Lke\Pool;
+use Exception;
 
 set_time_limit(0);
 declare(ticks = 1);
@@ -49,45 +50,47 @@ $logger->info('Create Counter...');
 $counter = new Counter($autoscaleThresholdCount);
 
 while (true) {
-    $logger->info('Get Nodes\' and Metrics details...');
-    $nodes = new Nodes($client);
-    $usedPercentage = $autoscaleTrigger == 'cpu' ? $nodes->getUsedCpuPercent() : $nodes->getUsedMemoryPercent();
-    $scale = new Scale($autoscaleUpAtUtilisationPercent, $autoscaleDownAtUtilisationPercent, $usedPercentage);
-    $logger->info(strtoupper($autoscaleTrigger) . ' Scale calculated', ['usedPercentage' => $usedPercentage, 'scaleUpPercentage' => $autoscaleUpAtUtilisationPercent, 'scaleDownPercentage' => $autoscaleDownAtUtilisationPercent]);
-    if ($scale->scaleUp()) {
-        $logger->info('Scale Count: Up');
-        $counter->up();
-    }
-    if ($scale->scaleDown()) {
-        $logger->info('Scale Count: Down');
-        $counter->down();
-    }
-    if (!$scale->scaleDown() && !$scale->scaleUp()) {
-        $logger->info('Nothing to count...resetting counter');
-        $counter->reset();
-    }
+    try {
+        $logger->info('Get Nodes\' and Metrics details...');
+        $nodes = new Nodes($client);
+        $usedPercentage = $autoscaleTrigger == 'cpu' ? $nodes->getUsedCpuPercent() : $nodes->getUsedMemoryPercent();
+        $scale = new Scale($autoscaleUpAtUtilisationPercent, $autoscaleDownAtUtilisationPercent, $usedPercentage);
+        $logger->info(strtoupper($autoscaleTrigger) . ' Scale calculated', ['usedPercentage' => $usedPercentage, 'scaleUpPercentage' => $autoscaleUpAtUtilisationPercent, 'scaleDownPercentage' => $autoscaleDownAtUtilisationPercent]);
+        if ($scale->scaleUp()) {
+            $logger->info('Scale Count: Up');
+            $counter->up();
+        } elseif ($scale->scaleDown()) {
+            $logger->info('Scale Count: Down');
+            $counter->down();
+        } else {
+            $logger->info('Nothing to count...resetting counter');
+            $counter->reset();
+        }
 
-    if ($counter->scaleUpCountBreached()) {
-        $logger->alert('Counter Scale Up Count Breached. Size UP Cluster...', ['count' => $counter->count, 'threshold' => $counter->thresholdCount]);
-        $currentNodesInPool = $linode->getNodeCount();
-        $logger->alert('Current Nodes in LKE Pool: ' . $currentNodesInPool);
-        $logger->alert("Adding $autoscaleNodesToAddOrRemovePerBreach more node(s)...");
-        $linode->updateNodeCount($currentNodesInPool + $autoscaleNodesToAddOrRemovePerBreach);
-        $counter->reset();
-        sleep($autoscaleWaitTimeBetweenScaling);
-    }
-
-    if ($counter->scaleDownCountBreached()) {
-        $logger->alert('Counter Scale Down Count Breached. Size DOWN Cluster...', ['count' => $counter->count, 'threshold' => $counter->thresholdCount]);
-        $currentNodesInPool = $linode->getNodeCount();
-        if ($currentNodesInPool > $linodeClusterPoolMinimumNodeCount) {
+        if ($counter->scaleUpCountBreached()) {
+            $logger->alert('Counter Scale Up Count Breached. Size UP Cluster...', ['count' => $counter->count, 'threshold' => $counter->thresholdCount]);
+            $currentNodesInPool = $linode->getNodeCount();
             $logger->alert('Current Nodes in LKE Pool: ' . $currentNodesInPool);
-            $logger->alert("Removing $autoscaleNodesToAddOrRemovePerBreach node(s)...");
-            $linode->updateNodeCount($currentNodesInPool - $autoscaleNodesToAddOrRemovePerBreach);
+            $logger->alert("Adding $autoscaleNodesToAddOrRemovePerBreach more node(s)...");
+            $linode->updateNodeCount($currentNodesInPool + $autoscaleNodesToAddOrRemovePerBreach);
+            $counter->reset();
             sleep($autoscaleWaitTimeBetweenScaling);
         }
-        $logger->alert("Skip downsizing cluster because we are already at the minimum number ($linodeClusterPoolMinimumNodeCount) of nodes.");
-        $counter->reset();
+
+        if ($counter->scaleDownCountBreached()) {
+            $logger->alert('Counter Scale Down Count Breached. Size DOWN Cluster...', ['count' => $counter->count, 'threshold' => $counter->thresholdCount]);
+            $currentNodesInPool = $linode->getNodeCount();
+            if ($currentNodesInPool > $linodeClusterPoolMinimumNodeCount) {
+                $logger->alert('Current Nodes in LKE Pool: ' . $currentNodesInPool);
+                $logger->alert("Removing $autoscaleNodesToAddOrRemovePerBreach node(s)...");
+                $linode->updateNodeCount($currentNodesInPool - $autoscaleNodesToAddOrRemovePerBreach);
+                sleep($autoscaleWaitTimeBetweenScaling);
+            }
+            $logger->alert("Skip downsizing cluster because we are already at the minimum number ($linodeClusterPoolMinimumNodeCount) of nodes.");
+            $counter->reset();
+        }
+    } catch (Exception $e) {
+        $logger->error($e->getMessage());
     }
 
     sleep($autoscaleQueryInterval);

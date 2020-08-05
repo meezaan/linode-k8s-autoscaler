@@ -27,8 +27,7 @@ docker run -v ~/.kube/config:/root/.kube/config \
 -e AUTOSCALE_QUERY_INTERVAL='10' \
 -e AUTOSCALE_THRESHOLD_COUNT='3' \
 -e AUTOSCALE_NUMBER_OF_NODES='1' \
--e AUTOSCALE_WAIT_TIME_AFTER_SCALING='180' \
-meezaan/linode-k8s-autoscaler
+-e AUTOSCALE_WAIT_TIME_AFTER_SCALING='180' meezaan/linode-k8s-autoscaler
 ```
 
 For production, you can build a private Docker image and push a kubectl config file 
