@@ -62,6 +62,10 @@ while (true) {
         $logger->info('Scale Count: Down');
         $counter->down();
     }
+    if (!$scale->scaleDown() && !$scale->scaleUp()) {
+        $logger->info('Nothing to count...resetting counter');
+        $counter->reset();
+    }
 
     if ($counter->scaleUpCountBreached()) {
         $logger->alert('Counter Scale Up Count Breached. Size UP Cluster...', ['count' => $counter->count, 'threshold' => $counter->thresholdCount]);
