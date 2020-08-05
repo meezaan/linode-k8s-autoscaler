@@ -9,7 +9,6 @@ use AutoScaler\Kubernetes\Nodes;
 use AutoScaler\Scale;
 use AutoScaler\Counter;
 use AutoScaler\Linode\Lke\Pool;
-use Exception;
 
 set_time_limit(0);
 declare(ticks = 1);
