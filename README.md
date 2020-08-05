@@ -42,3 +42,5 @@ COPY configfile /root/.kube/config
 
 ## TO DO
 * Add some unit tests (it has already been tested against a production cluster)
+* More docs
+* Production ready K8S manifest
