@@ -2,6 +2,8 @@ FROM islamicnetwork/php74:cli
 
 COPY . /autoscaler/
 
+RUN cd /autoscaler/ && composer install --no-dev
+
 ENV LINODE_PERSONAL_ACCCESS_TOKEN "XXXXXXXXXXXXXXXXX"
 ENV LINODE_LKE_CLUSTER_ID "1234"
 ENV LINODE_LKE_CLUSTER_POOL_ID "567890"

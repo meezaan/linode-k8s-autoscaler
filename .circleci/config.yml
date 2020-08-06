@@ -1,0 +1,59 @@
+version: 2.1
+executors:
+  php74:
+    docker:
+      - image: islamicnetwork/php74:cli
+    working_directory: ~/repo
+
+jobs:
+  test:
+    executor: php74
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run: composer install -n --prefer-dist
+      - run: vendor/bin/phpunit
+      - store_artifacts:
+          path: /tmp/artifacts
+
+  git-tag:
+    docker:
+      - image: cibuilds/github
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            VERSION="${CIRCLE_BUILD_NUM}"
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ~/repo/
+
+
+workflows:
+  version: 2
+  build-master:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only: master
+            tags:
+              ignore: /.*/
+      - git-tag:
+          requires:
+            - test
+          context: org-global
+          filters:
+            branches:
+              only: master
+            tags:
+              ignore: /.*/
+
+  build-tags:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/

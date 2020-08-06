@@ -1,2 +1,4 @@
-./idea
+.idea/
 vendor/
+tmp/
+.phpunit.result.cache
