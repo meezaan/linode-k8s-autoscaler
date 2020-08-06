@@ -47,7 +47,7 @@ The docker container takes all its configuration via environment variables. Here
 | AUTOSCALE_DOWN_PERCENTAGE      | At what percentage of 'cpu' or 'memory' to scale down the node pool. Example: 40
 | AUTOSCALE_QUERY_INTERVAL       | How many seconds to wait before each call to the Kubernetes API to check CPU and Memory usage. Example: 10
 | AUTOSCALE_THRESHOLD_COUNT      | After how many consecutive matches of AUTOSCALE_UP_PERCENTAGE or AUTOSCALE_DOWN_PERCENTAGE to scale the cluster up or down.
-| AUTOSCALE_NUMBER_OF_NODES      | How many nodes to add or remove at one time when scaling the cluster. Example: 1 or 2 or 3
+| AUTOSCALE_NUMBER_OF_NODES      | How many nodes to add or remove at one time when scaling the cluster. Example: 1 or 2 or 3 or N
 | AUTOSCALE_WAIT_TIME_AFTER_SCALING | How many seconds to wait after scaling up or down to start checking CPU and Memory. This should be set the to give the cluster enough time to adjust itself with the updated number of nodes. Example: 150
 
 To understand the above assuming we have set the following values.
