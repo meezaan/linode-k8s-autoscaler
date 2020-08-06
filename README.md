@@ -153,9 +153,6 @@ The above pod takes 0.01 CPU and 15MB of memory to run. The memory may
 increase based on the size of the API response, but it returns JSON, so even 
 if you have 100+ servers in your cluster you're still only looking and 30MB or so.
 
-## TO DO
-* Add some unit tests (it has already been tested against a production cluster)
-
 ### Credits
 * https://github.com/travisghansen/kubernetes-client-php
 * https://github.com/guzzle/guzzle
