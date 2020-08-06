@@ -13,14 +13,14 @@ It's fully dockerised (but written in PHP) and has a low resource footprint, so 
 deploy it locally or on the cluster itself.
 
 # Contents
-[Requirements](#requirements)
-[Docker Image](#published-docker-image)
-[Environment Variables & Configuration](#environment-variables--configuration)
-[Usage](#usage)
-[Deploying on Kubernetes for Production Use](deploying-on-kubernetes-for-production-use)
-[Pod Sizing](#sizing-the-autoscaler-pod)
-[Credits](#credits)
-[Disclaimer](#disclaimer)
+1. [Requirements](#requirements)
+2. [Docker Image](#published-docker-image)
+3. [Environment Variables & Configuration](#environment-variables--configuration)
+4. [Usage](#usage)
+5. [Deploying on Kubernetes for Production Use](deploying-on-kubernetes-for-production-use)
+6. [Autoscaler Pod Sizing](#sizing-the-autoscaler-pod)
+7. [Credits](#credits)
+8. [Disclaimer](#disclaimer)
 
 ## Requirements
 * Linode Kuberenetes Cluster (LKE) with Metrics Server
