@@ -12,6 +12,16 @@ you can deploy 2 instances of this utility (usually 1 is enough).
 It's fully dockerised (but written in PHP) and has a low resource footprint, so you can 
 deploy it locally or on the cluster itself.
 
+# Contents
+[Requirements](#requirements)
+[Docker Image](#published-docker-image)
+[Environment Variables & Configuration](#environment-variables--configuration)
+[Usage](#usage)
+[Deploying on Kubernetes for Production Usage](deploying-on-kubernetes-for-production-usage)
+[Pod Sizing](#sizing-the-autoscaler-pod)
+[Credits](#credits)
+[Disclaimer](#discalimer)
+
 ## Requirements
 * Linode Kuberenetes Cluster (LKE) with Metrics Server
 * A kubectl config file (usually stored @ ~/.kube/config)
@@ -77,7 +87,7 @@ docker run -v ~/.kube/config:/root/.kube/config \
 -e AUTOSCALE_WAIT_TIME_AFTER_SCALING='180' meezaan/linode-k8s-autoscaler
 ```
 
-## Deploying on Kubernetes
+## Deploying on Kubernetes for Production Use
 
 For production, you can build a private Docker image and push a kubectl config file 
 with a service account's credentials into the image. So, your Dockerfile may look something like:
