@@ -13,8 +13,6 @@ jobs:
       - checkout
       - run: composer install -n --prefer-dist
       - run: vendor/bin/phpunit
-      - store_artifacts:
-          path: /tmp/artifacts
 
   git-tag:
     docker:
