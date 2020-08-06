@@ -1,3 +1,8 @@
+[![CircleCI](https://circleci.com/gh/meezaan/linode-k8s-autoscaler.svg?style=shield)](https://circleci.com/gh/meezaan/linode-k8s-autoscaler) 
+[![](https://img.shields.io/github/release/meezaan/linode-k8s-autoscaler.svg)](https://github.com/meezaan/linode-k8s-autoscaler/releases)
+![Docker Pulls](https://img.shields.io/docker/pulls/meezaan/linode-k8s-autoscaler)
+[![](https://img.shields.io/github/license/meezaan/linode-k8s-autoscaler.svg)](https://github.com/meezaan/linode-k8s-autoscaler/blob/master/LICENSE)
+
 ## Linode Kubernetes Engine Autoscaler
 
 This is a simple autoscaling utility for horizontally scaling Linodes in an LKE
