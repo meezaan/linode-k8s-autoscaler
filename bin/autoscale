@@ -79,13 +79,14 @@ while (true) {
         if ($counter->scaleDownCountBreached()) {
             $logger->alert('Counter Scale Down Count Breached. Size DOWN Cluster...', ['count' => $counter->count, 'threshold' => $counter->thresholdCount]);
             $currentNodesInPool = $linode->getNodeCount();
-            if ($currentNodesInPool > $linodeClusterPoolMinimumNodeCount) {
+            // Scale down if current nodes are greater than the minimum AND if the current nodes - the scale down number is greater than or equal to the minimum number
+            if ($currentNodesInPool > $linodeClusterPoolMinimumNodeCount && ($currentNodesInPool - $autoscaleNodesToAddOrRemovePerBreach) >= $linodeClusterPoolMinimumNodeCount) {
                 $logger->alert('Current Nodes in LKE Pool: ' . $currentNodesInPool);
                 $logger->alert("Removing $autoscaleNodesToAddOrRemovePerBreach node(s)...");
                 $linode->updateNodeCount($currentNodesInPool - $autoscaleNodesToAddOrRemovePerBreach);
                 sleep($autoscaleWaitTimeBetweenScaling);
             }
-            $logger->alert("Skip downsizing cluster because we are already at the minimum number ($linodeClusterPoolMinimumNodeCount) of nodes.");
+            $logger->alert("Skip downsizing cluster because we are already at the minimum number ($linodeClusterPoolMinimumNodeCount) of nodes or scaling down by $autoscaleNodesToAddOrRemovePerBreach will put us at less than the minimum number.");
             $counter->reset();
         }
     } catch (Exception $e) {
