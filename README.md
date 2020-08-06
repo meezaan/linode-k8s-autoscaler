@@ -17,10 +17,10 @@ deploy it locally or on the cluster itself.
 [Docker Image](#published-docker-image)
 [Environment Variables & Configuration](#environment-variables--configuration)
 [Usage](#usage)
-[Deploying on Kubernetes for Production Usage](deploying-on-kubernetes-for-production-usage)
+[Deploying on Kubernetes for Production Use](deploying-on-kubernetes-for-production-use)
 [Pod Sizing](#sizing-the-autoscaler-pod)
 [Credits](#credits)
-[Disclaimer](#discalimer)
+[Disclaimer](#disclaimer)
 
 ## Requirements
 * Linode Kuberenetes Cluster (LKE) with Metrics Server
