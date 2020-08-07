@@ -6,8 +6,9 @@
 ## Linode Kubernetes Engine Autoscaler
 
 This is a simple autoscaling utility for horizontally scaling Linodes in an LKE
-Cluster Pool based on memory or cpu usage. Each instance will autoscale based on either memory or cpu. To use both,
-you can deploy 2 instances of this utility (usually 1 is enough).
+Cluster Pool based on memory or cpu usage. This effectively means that you can use Kubernetes' horizontal pod autoscaling to scale up your pods and this utility to scale up your Linodes - so you can set this up and let your cluster scale up or down as needed.
+
+Each instance of this utility will autoscale based on either memory or cpu. To use both, you can deploy 2 instances of this utility (usually 1 is enough).
 
 It's fully dockerised (but written in PHP) and has a low resource footprint, so you can 
 deploy it locally or on the cluster itself.
