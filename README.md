@@ -29,7 +29,7 @@ deploy it locally or on the cluster itself.
 * Docker (recommended) or PHP 7.4 (you'll need to setup env vars on your machine / server before using PHP without Docker)
 
 ## Published Docker Image
-The image for this utility is published @ Docker Hub as meezaan/linode-k8s-autoscaler (https://hub.docker.com/repository/docker/meezaan/linode-k8s-autoscaler).
+The image for this utility is published @ Docker Hub as meezaan/linode-k8s-autoscaler (https://hub.docker.com/r/meezaan/linode-k8s-autoscaler).
 
 The latest tag always has the latest code. Also, Docker Hub tags are tied to the tags in this git repository as releases.
 
@@ -97,7 +97,7 @@ FROM meezaan/linode-k8s-autoscaler
 COPY configfile /root/.kube/config
 ```
 
-Once you've build the image (and let's assume it's called yourspace/k8s-autoscaler:latest), you can deploy 
+Once you've built the image (and let's assume it's called yourspace/k8s-autoscaler:latest), you can deploy 
 it with the following manifest:
 ```
 ---
