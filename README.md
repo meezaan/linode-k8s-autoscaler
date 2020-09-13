@@ -167,7 +167,7 @@ You will need to create these.
 ### Sizing the Autoscaler Pod
 The above pod takes 0.01 CPU and 15MB of memory to run. The memory may 
 increase based on the size of the API response, but it returns JSON, so even 
-if you have 100+ servers in your cluster you're still only looking and 30MB or so.
+if you have 100+ servers in your cluster you're still only looking at 30MB or so.
 
 ### Credits
 * https://github.com/travisghansen/kubernetes-client-php
