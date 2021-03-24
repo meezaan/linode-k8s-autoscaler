@@ -46,26 +46,30 @@ The docker container takes all its configuration via environment variables. Here
 | AUTOSCALE_TRIGGER              | 'cpu' or 'memory'
 | AUTOSCALE_UP_PERCENTAGE        | At what percentage of 'cpu' or 'memory' to scale up the node pool. Example: 65
 | AUTOSCALE_DOWN_PERCENTAGE      | At what percentage of 'cpu' or 'memory' to scale down the node pool. Example: 40
+| AUTOSCALE_RESOURCE_REQUEST_UP_PERCENTAGE | At what percentage of 'cpu' or 'memory' of the requested / available to scale up the cluster. Default: 80
+| AUTOSCALE_RESOURCE_REQUEST_DOWN_PERCENTAGE | At what percentage of 'cpu' or 'memory' of the requested / available to scale down the cluster. Default: 70
 | AUTOSCALE_QUERY_INTERVAL       | How many seconds to wait before each call to the Kubernetes API to check CPU and Memory usage. Example: 10
 | AUTOSCALE_THRESHOLD_COUNT      | After how many consecutive matches of AUTOSCALE_UP_PERCENTAGE or AUTOSCALE_DOWN_PERCENTAGE to scale the cluster up or down.
-| AUTOSCALE_NUMBER_OF_NODES      | How many nodes to add or remove at one time when scaling the cluster. Example: 1 or 2 or 3 or N
+| AUTOSCALE_NUMBER_OF_NODES      | How many nodes to add at one time when scaling the cluster. Example: 1 or 2 or 3 or N
 | AUTOSCALE_WAIT_TIME_AFTER_SCALING | How many seconds to wait after scaling up or down to start checking CPU and Memory. This should be set the to give the cluster enough time to adjust itself with the updated number of nodes. Example: 150
 
 To understand the above assuming we have set the following values.
 * AUTOSCALE_TRIGGER=memory
 * AUTOSCALE_UP_PERCENTAGE=65
 * AUTOSCALE_UP_PERCENTAGE=30
+* AUTOSCALE_RESOURCE_REQUEST_UP_PERCENTAGE=80
+* AUTOSCALE_RESOURCE_REQUEST_DOWN_PERCENTAGE=80
 * AUTOSCALE_QUERY_INTERVAL=10
 * AUTOSCALE_THRESHOLD_COUNT=3
-* AUTOSCALE_NUMBER_OF_NODES=1
+* AUTOSCALE_NUMBER_OF_NODES=2
 * AUTOSCALE_WAIT_TIME_AFTER_SCALING=180
 
 With this setup, the autoscaler utility will query the Kuberenetes API every 10 seconds. If with 3 consecutive calls
-to the API (effectively meaning over 30 seconds), the memory usage is higher than 65%, 1 more node will be added to the
+to the API (effectively meaning over 30 seconds), the memory usage is higher than 65% or the requested memory exceeds 80% of the total memory available on the cluster, 2 more nodes will be added to the
 specified node pool. The utility will wait for 180 seconds and then start querying the API every 10 seconds again.
 
-If with 3 consecutive calls to the API (effectively meaning over 30 seconds), the memory usage is lower than 30%,
-1 node will be removed from the specified node pool. The utility will wait for 180 seconds and then start 
+If with 3 consecutive calls to the API (effectively meaning over 30 seconds), the memory usage is lower than 30% or the requested memory is below 80% of the total memory available on the cluster,
+1 node will be removed (**nodes are always removed one at a time to ensure you don't run out of capacity all of a sudden**) from the specified node pool. The utility will wait for 180 seconds and then start 
 querying the API every 10 seconds again.
 
 ## Usage
@@ -82,6 +86,8 @@ docker run -v ~/.kube/config:/root/.kube/config \
 -e AUTOSCALE_TRIGGER='cpu' \
 -e AUTOSCALE_UP_PERCENTAGE='60' \
 -e AUTOSCALE_DOWN_PERCENTAGE='30' \
+-e AUTOSCALE_RESOURCE_REQUEST_UP_PERCENTAGE='70' \
+-e AUTOSCALE_RESOURCE_REQUEST_DOWN_PERCENTAGE='70' \
 -e AUTOSCALE_QUERY_INTERVAL='10' \
 -e AUTOSCALE_THRESHOLD_COUNT='3' \
 -e AUTOSCALE_NUMBER_OF_NODES='1' \
