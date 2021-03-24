@@ -24,7 +24,7 @@ $autoscaleUpRequestPercentage = getenv('AUTOSCALE_RESOURCE_REQUEST_UP_PERCENTAGE
 $autoscaleDownRequestPercentage = getenv('AUTOSCALE_RESOURCE_REQUEST_DOWN_PERCENTAGE');
 $autoscaleQueryInterval = getenv('AUTOSCALE_QUERY_INTERVAL'); // Seconds. We'll call K8S after every interval to fetch node utilisation metrics
 $autoscaleThresholdCount = getenv('AUTOSCALE_THRESHOLD_COUNT'); // Number of consecutive times the utilisation percentage should be greater than $autoscaleAtCpuUtilisationPercent or $autoscaleAtMemoryUtilisationPercent to autoscale.
-$autoscaleNodesToAddOrRemovePerBreach = getenv('AUTOSCALE_NUMBER_OF_NODES');
+$autoscaleNodesToAddPerBreach = getenv('AUTOSCALE_NUMBER_OF_NODES');
 $autoscaleWaitTimeBetweenScaling = getenv('AUTOSCALE_WAIT_TIME_AFTER_SCALING');
 $linodePAT = getenv('LINODE_PERSONAL_ACCCESS_TOKEN');
 $linodeLkeClusterId = getenv('LINODE_LKE_CLUSTER_ID');
@@ -89,8 +89,8 @@ while (true) {
         if ($counter->scaleUpCountBreached()) {
             $logger->alert('Counter Scale Up Count Breached. Size UP Cluster...', ['count' => $counter->count, 'threshold' => $counter->thresholdCount]);
             $logger->alert('Current Nodes in LKE Pool: ' . $currentNodesInPool);
-            $logger->alert("Adding $autoscaleNodesToAddOrRemovePerBreach more node(s)...");
-            $linode->updateNodeCount($currentNodesInPool + $autoscaleNodesToAddOrRemovePerBreach);
+            $logger->alert("Adding $autoscaleNodesToAddPerBreach more node(s)...");
+            $linode->updateNodeCount($currentNodesInPool + $autoscaleNodesToAddPerBreach);
             $counter->reset();
             sleep($autoscaleWaitTimeBetweenScaling);
         }
@@ -98,7 +98,7 @@ while (true) {
         if ($counter->scaleDownCountBreached()) {
             $logger->alert('Counter Scale Down Count Breached. Size DOWN Cluster...', ['count' => $counter->count, 'threshold' => $counter->thresholdCount]);
             // Scale down if current nodes are greater than the minimum AND if the current nodes - the scale down number is greater than or equal to the minimum number
-            if ($currentNodesInPool > $linodeClusterPoolMinimumNodeCount && ($currentNodesInPool - $autoscaleNodesToAddOrRemovePerBreach) >= $linodeClusterPoolMinimumNodeCount) {
+            if ($currentNodesInPool > $linodeClusterPoolMinimumNodeCount && ($currentNodesInPool - 1) >= $linodeClusterPoolMinimumNodeCount) {
                 $logger->alert('Current Nodes in LKE Pool: ' . $currentNodesInPool);
                 $logger->alert("Removing 1 node(s)...");
                 // Scale down only 1 node at a time, this is much safer than scaling down multiple nodes
