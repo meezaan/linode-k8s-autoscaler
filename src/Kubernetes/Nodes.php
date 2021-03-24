@@ -39,6 +39,7 @@ class Nodes
         $this->nodeMetrics = $this->client->createList("/apis/metrics.k8s.io/v1beta1/nodes");
         $this->calculateAvailableResources();
         $this->calculateUsedResources();
+        $this->calculateRequestedResources();
     }
 
     public function getNodes(): ResourceList
@@ -53,11 +54,19 @@ class Nodes
         $this->limitCpu = 0;
         $this->limitMemory = 0;
         foreach ($this->pods->stream() as $pod) {
-            foreach ($pod['containers'] as $container) {
-                $this->limitCpu += (float) Resource::getCpuMilliValue($container['resources']['limits']['cpu']);
-                $this->limitMemory += (float) Resource::getMemoryBytes($container['resources']['limits']['memory']);
-                $this->requestedCpu += (float) Resource::getCpuMilliValue($container['resources']['requests']['cpu']);
-                $this->requestedMemory += (float) Resource::getMemoryBytes($container['resources']['requests']['memory']);
+            foreach ($pod['spec']['containers'] as $container) {
+                $limitCpu = isset($container['resources']['limits']['cpu']) ? $container['resources']['limits']['cpu'] : 0;
+                $limitMemory = isset($container['resources']['limits']['memory']) ? $container['resources']['limits']['memory'] : 0;
+                $requestedCpu = isset($container['resources']['requests']['cpu']) ? $container['resources']['requests']['cpu'] : 0;
+                $requestedMemory = isset($container['resources']['requests']['memory']) ? $container['resources']['requests']['memory'] : 0;
+                $this->limitCpu += (float) Resource::getCpuMilliValue($limitCpu);
+                $this->limitMemory += (float) Resource::getMemoryBytes($limitMemory);
+                $this->requestedCpu += (float) Resource::getCpuMilliValue($requestedCpu);
+                $this->requestedMemory += (float) Resource::getMemoryBytes($requestedMemory);
+                $limitCpu = 0;
+                $limitMemory = 0;
+                $requestedCpu = 0;
+                $requestedMemory = 0;
             }
         }
     }
@@ -135,11 +144,11 @@ class Nodes
 
     public function getRequestedCpuPercent(): float
     {
-        return ($this->requestedCpu / $this->availableCpu) * 100;
+        return ($this->requestedCpu / ($this->availableCpu * 1000)) * 100;
     }
 
     public function getRequestedMemoryPercent(): float
     {
-        return ($this->requestedMemory / $this->availableMemory) * 100;
+        return ($this->requestedMemory / ($this->availableMemory / 1000)) * 100;
     }
 }

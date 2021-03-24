@@ -20,7 +20,8 @@ pcntl_signal(SIGINT, function () {
 $autoscaleTrigger = getenv('AUTOSCALE_TRIGGER'); // memory or cpu for memory percentage or CPU percentage
 $autoscaleUpAtUtilisationPercent = getenv('AUTOSCALE_UP_PERCENTAGE');
 $autoscaleDownAtUtilisationPercent = getenv('AUTOSCALE_DOWN_PERCENTAGE');
-$autoscaleUpOrDownRequestPercentage = getenv('AUTOSCALE_RESOURCE_REQUEST_PERCENTAGE');
+$autoscaleUpRequestPercentage = getenv('AUTOSCALE_RESOURCE_REQUEST_UP_PERCENTAGE');
+$autoscaleDownRequestPercentage = getenv('AUTOSCALE_RESOURCE_REQUEST_DOWN_PERCENTAGE');
 $autoscaleQueryInterval = getenv('AUTOSCALE_QUERY_INTERVAL'); // Seconds. We'll call K8S after every interval to fetch node utilisation metrics
 $autoscaleThresholdCount = getenv('AUTOSCALE_THRESHOLD_COUNT'); // Number of consecutive times the utilisation percentage should be greater than $autoscaleAtCpuUtilisationPercent or $autoscaleAtMemoryUtilisationPercent to autoscale.
 $autoscaleNodesToAddOrRemovePerBreach = getenv('AUTOSCALE_NUMBER_OF_NODES');
@@ -65,13 +66,14 @@ while (true) {
 
         $usedPercentage = $autoscaleTrigger == 'cpu' ? $nodes->getUsedCpuPercent() : $nodes->getUsedMemoryPercent();
         $requestedPercentage = $autoscaleTrigger == 'cpu' ? $nodes->getRequestedCpuPercent() : $nodes->getRequestedMemoryPercent();
-        $scale = new Scale($autoscaleUpAtUtilisationPercent, $autoscaleDownAtUtilisationPercent, $usedPercentage, $requestedPercentage, $autoscaleUpOrDownRequestPercentage);
+        $scale = new Scale($autoscaleUpAtUtilisationPercent, $autoscaleDownAtUtilisationPercent, $usedPercentage, $requestedPercentage, $autoscaleUpRequestPercentage, $autoscaleDownRequestPercentage);
         $logger->info(strtoupper($autoscaleTrigger) . ' Scale calculated', [
         'usedPercentage' => $usedPercentage,
         'scaleUpPercentage' => $autoscaleUpAtUtilisationPercent,
         'scaleDownPercentage' => $autoscaleDownAtUtilisationPercent,
         'requestedPercentage' => $requestedPercentage,
-        'scaleUporDownRequestPercentage' => $autoscaleUpOrDownRequestPercentage
+        'scaleUpRequestPercentage' => $autoscaleUpRequestPercentage,
+        'scaleDownRequestPercentage' => $autoscaleDownRequestPercentage
         ]);
         if ($scale->scaleUp()) {
             $logger->info('Scale Count: Up');
