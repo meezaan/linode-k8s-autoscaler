@@ -20,6 +20,7 @@ pcntl_signal(SIGINT, function () {
 $autoscaleTrigger = getenv('AUTOSCALE_TRIGGER'); // memory or cpu for memory percentage or CPU percentage
 $autoscaleUpAtUtilisationPercent = getenv('AUTOSCALE_UP_PERCENTAGE');
 $autoscaleDownAtUtilisationPercent = getenv('AUTOSCALE_DOWN_PERCENTAGE');
+$autoscaleUpOrDownRequestPercentage = getenv('AUTOSCALE_RESOURCE_REQUEST_PERCENTAGE');
 $autoscaleQueryInterval = getenv('AUTOSCALE_QUERY_INTERVAL'); // Seconds. We'll call K8S after every interval to fetch node utilisation metrics
 $autoscaleThresholdCount = getenv('AUTOSCALE_THRESHOLD_COUNT'); // Number of consecutive times the utilisation percentage should be greater than $autoscaleAtCpuUtilisationPercent or $autoscaleAtMemoryUtilisationPercent to autoscale.
 $autoscaleNodesToAddOrRemovePerBreach = getenv('AUTOSCALE_NUMBER_OF_NODES');
@@ -63,8 +64,15 @@ while (true) {
         }
 
         $usedPercentage = $autoscaleTrigger == 'cpu' ? $nodes->getUsedCpuPercent() : $nodes->getUsedMemoryPercent();
-        $scale = new Scale($autoscaleUpAtUtilisationPercent, $autoscaleDownAtUtilisationPercent, $usedPercentage);
-        $logger->info(strtoupper($autoscaleTrigger) . ' Scale calculated', ['usedPercentage' => $usedPercentage, 'scaleUpPercentage' => $autoscaleUpAtUtilisationPercent, 'scaleDownPercentage' => $autoscaleDownAtUtilisationPercent]);
+        $requestedPercentage = $autoscaleTrigger == 'cpu' ? $nodes->getRequestedCpuPercent() : $nodes->getRequestedMemoryPercent();
+        $scale = new Scale($autoscaleUpAtUtilisationPercent, $autoscaleDownAtUtilisationPercent, $usedPercentage, $requestedPercentage, $autoscaleUpOrDownRequestPercentage);
+        $logger->info(strtoupper($autoscaleTrigger) . ' Scale calculated', [
+        'usedPercentage' => $usedPercentage,
+        'scaleUpPercentage' => $autoscaleUpAtUtilisationPercent,
+        'scaleDownPercentage' => $autoscaleDownAtUtilisationPercent,
+        'requestedPercentage' => $requestedPercentage,
+        'scaleUporDownRequestPercentage' => $autoscaleUpOrDownRequestPercentage
+        ]);
         if ($scale->scaleUp()) {
             $logger->info('Scale Count: Up');
             $counter->up();
@@ -91,7 +99,8 @@ while (true) {
             if ($currentNodesInPool > $linodeClusterPoolMinimumNodeCount && ($currentNodesInPool - $autoscaleNodesToAddOrRemovePerBreach) >= $linodeClusterPoolMinimumNodeCount) {
                 $logger->alert('Current Nodes in LKE Pool: ' . $currentNodesInPool);
                 $logger->alert("Removing $autoscaleNodesToAddOrRemovePerBreach node(s)...");
-                $linode->updateNodeCount($currentNodesInPool - $autoscaleNodesToAddOrRemovePerBreach);
+                // Scale down only 1 node at a time, this is much safer than scaling down multiple nodes
+                $linode->updateNodeCount($currentNodesInPool - 1);
                 sleep($autoscaleWaitTimeBetweenScaling);
             }
             $logger->alert("Skip downsizing cluster because we are already at the minimum number ($linodeClusterPoolMinimumNodeCount) of nodes or scaling down by $autoscaleNodesToAddOrRemovePerBreach will put us at less than the minimum number.");

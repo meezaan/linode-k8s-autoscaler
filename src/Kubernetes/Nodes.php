@@ -2,8 +2,10 @@
 
 namespace AutoScaler\Kubernetes;
 
+use http\Encoding\Stream\Deflate;
 use KubernetesClient\Client;
 use KubernetesClient\ResourceList;
+use AutoScaler\Helper\Resource;
 
 class Nodes
 {
@@ -21,10 +23,19 @@ class Nodes
 
     private float $usedMemory;
 
+    private float $requestedCpu;
+
+    private float $requestedMemory;
+
+    private float $limitCpu;
+
+    private float $limitMemory;
+
     public function __construct(Client $client)
     {
         $this->client = $client;
         $this->nodes = $this->client->createList("/api/v1/nodes");
+        $this->pods = $this->client->createList("/api/v1/pods");
         $this->nodeMetrics = $this->client->createList("/apis/metrics.k8s.io/v1beta1/nodes");
         $this->calculateAvailableResources();
         $this->calculateUsedResources();
@@ -33,6 +44,22 @@ class Nodes
     public function getNodes(): ResourceList
     {
         return $this->nodes;
+    }
+
+    private function calculateRequestedResources(): void
+    {
+        $this->requestedCpu = 0;
+        $this->requestedMemory = 0;
+        $this->limitCpu = 0;
+        $this->limitMemory = 0;
+        foreach ($this->pods->stream() as $pod) {
+            foreach ($pod['containers'] as $container) {
+                $this->limitCpu += (float) Resource::getCpuMilliValue($container['resources']['limits']['cpu']);
+                $this->limitMemory += (float) Resource::getMemoryBytes($container['resources']['limits']['memory']);
+                $this->requestedCpu += (float) Resource::getCpuMilliValue($container['resources']['requests']['cpu']);
+                $this->requestedMemory += (float) Resource::getMemoryBytes($container['resources']['requests']['memory']);
+            }
+        }
     }
 
     private function calculateAvailableResources(): void
@@ -84,5 +111,35 @@ class Nodes
     public function getUsedMemoryPercent(): float
     {
         return ($this->usedMemory / $this->availableMemory) * 100;
+    }
+
+    public function getRequestedCpu(): float
+    {
+        return $this->requestedCpu;
+    }
+
+    public function getRequestedMemory(): float
+    {
+        return $this->requestedMemory;
+    }
+
+    public function getLimitCpu(): float
+    {
+        return $this->limitCpu;
+    }
+
+    public function getLimitMemory(): float
+    {
+        return $this->limitMemory;
+    }
+
+    public function getRequestedCpuPercent(): float
+    {
+        return ($this->requestedCpu / $this->availableCpu) * 100;
+    }
+
+    public function getRequestedMemoryPercent(): float
+    {
+        return ($this->requestedMemory / $this->availableMemory) * 100;
     }
 }
