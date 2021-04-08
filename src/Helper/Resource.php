@@ -7,7 +7,7 @@ class Resource
     public static function getCpuMilliValue(string $value): int
     {
         // If the string m exists, we have millivalues
-        if (str_contains($value, 'm')) {
+        if (strpos($value, 'm') !== false) {
             return self::getNumericValue($value);
         }
 
@@ -16,6 +16,8 @@ class Resource
             // Convert to millivalues and return
             return (int) $value * 1000;
         }
+
+        return $value;
 
     }
 
