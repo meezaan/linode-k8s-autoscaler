@@ -18,6 +18,7 @@ pcntl_signal(SIGINT, function () {
 
 /** Config **/
 $autoscaleTrigger = getenv('AUTOSCALE_TRIGGER'); // memory or cpu for memory percentage or CPU percentage
+$autoscaleTriggerType = getenv('AUTOSCALE_TRIGGER_TYPE'); // requested or used
 $autoscaleUpAtUtilisationPercent = getenv('AUTOSCALE_UP_PERCENTAGE');
 $autoscaleDownAtUtilisationPercent = getenv('AUTOSCALE_DOWN_PERCENTAGE');
 $autoscaleUpRequestPercentage = getenv('AUTOSCALE_RESOURCE_REQUEST_UP_PERCENTAGE');
