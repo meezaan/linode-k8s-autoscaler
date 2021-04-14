@@ -14,7 +14,9 @@ class Scale
     public float $thresholdRequestDownPercentage;
     public string $triggerType; // requested or used
 
-    public function __construct(float $thresholdUpPercentage, float $thresholdDownPercentage, float $usedPercentage, float $requestedPercentage, float $thresholdRequestUpPercentage, float $thresholdRequestDownPercentage, string $triggerType)
+    public function __construct(float $thresholdUpPercentage, float $thresholdDownPercentage, float $usedPercentage,
+                                float $requestedPercentage, float $thresholdRequestUpPercentage, float $thresholdRequestDownPercentage,
+                                string $triggerType)
     {
         $this->thresholdUpPercentage = $thresholdUpPercentage;
         $this->thresholdDownPercentage = $thresholdDownPercentage;
@@ -22,25 +24,25 @@ class Scale
         $this->requestedPercentage = $requestedPercentage;
         $this->thresholdRequestUpPercentage = $thresholdRequestUpPercentage;
         $this->thresholdRequestDownPercentage = $thresholdRequestDownPercentage;
-	$this->triggerType = $triggerType;
+	    $this->triggerType = $triggerType;
     }
 
-    public function scaleUp()
+    public function scaleUp(): bool
     {
-	    if ($triggerType == 'requested') {
+	    if ($this->triggerType == 'requested') {
 		return $this->requestedPercentage > $this->thresholdRequestUpPercentage;
 	    } 
 
-	    return $this->usedPercentage > $this->thresholdUpPercentage
+	    return $this->usedPercentage > $this->thresholdUpPercentage;
 
     }
 
-    public function scaleDown()
+    public function scaleDown(): bool
     {
-	    if ($triggerType == 'requested') {
+	    if ($this->triggerType == 'requested') {
                 return $this->requestedPercentage < $this->thresholdRequestDownPercentage;
 	    }
 
-        return $this->usedPercentage < $this->thresholdDownPercentage
+        return $this->usedPercentage < $this->thresholdDownPercentage;
     }
 }
