@@ -102,7 +102,7 @@ while (true) {
             // Scale down if current nodes are greater than the minimum AND if the current nodes - the scale down number is greater than or equal to the minimum number
             if ($currentNodesInPool > $linodeClusterPoolMinimumNodeCount && ($currentNodesInPool - 1) >= $linodeClusterPoolMinimumNodeCount) {
                 $logger->alert('Current Nodes in LKE Pool: ' . $currentNodesInPool);
-                $logger->alert("Removing $autoscaleNodesToAddOrRemovePerBreach node(s)...");
+                $logger->alert("Removing 1 node...");
                 // Scale down only 1 node at a time, this is much safer than scaling down multiple nodes
                 $linode->updateNodeCount($currentNodesInPool - 1);
                 sleep($autoscaleWaitTimeBetweenScaling);
