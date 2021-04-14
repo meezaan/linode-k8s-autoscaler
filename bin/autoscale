@@ -48,6 +48,7 @@ $linode = new Pool($linodePAT, $linodeLkeClusterId, $linodeLkeClusterPoolId);
 
 $logger->info('Start Monitoring Cluster...');
 $logger->info('Autoscale Trigger is set to: ' . $autoscaleTrigger);
+$logger->info('Autoscale Trigger Type is set to: ' . $autoscaleTriggerType);
 $logger->info('Create Counter...');
 $counter = new Counter($autoscaleThresholdCount);
 
