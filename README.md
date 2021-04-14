@@ -43,7 +43,8 @@ The docker container takes all its configuration via environment variables. Here
 | LINODE_LKE_CLUSTER_ID          | The ID of the LKE Cluster to Autoscale |
 | LINODE_LKE_CLUSTER_POOL_ID     | The Node Pool ID within the LKE Cluster to Autoscale |
 | LINODE_LKE_CLUSTER_POOL_MINIMUM_NODES | The minimum nodes to keep in the cluster. The cluster won't be scaled down below this.|
-| AUTOSCALE_TRIGGER              | 'cpu' or 'memory'
+| AUTOSCALE_TRIGGER              | 'cpu' or 'memory'. Defaults to memmory.
+| AUTOSCALE_TRIGGER_TYPE         | 'requested' or 'used'. Defaults to requested. This tells the autoscaler to use either the *requested* or the *currently used* memory or cpu to scale up or down if it breaches the threshhold.
 | AUTOSCALE_UP_PERCENTAGE        | At what percentage of 'cpu' or 'memory' to scale up the node pool. Example: 65
 | AUTOSCALE_DOWN_PERCENTAGE      | At what percentage of 'cpu' or 'memory' to scale down the node pool. Example: 40
 | AUTOSCALE_RESOURCE_REQUEST_UP_PERCENTAGE | At what percentage of 'cpu' or 'memory' of the requested / available to scale up the cluster. Default: 80
@@ -55,21 +56,42 @@ The docker container takes all its configuration via environment variables. Here
 
 To understand the above assuming we have set the following values.
 * AUTOSCALE_TRIGGER=memory
+* AUTOSCALE_TRIGGER_TYPE=requested
 * AUTOSCALE_UP_PERCENTAGE=65
-* AUTOSCALE_UP_PERCENTAGE=30
+* AUTOSCALE_DOWN_PERCENTAGE=30
 * AUTOSCALE_RESOURCE_REQUEST_UP_PERCENTAGE=80
-* AUTOSCALE_RESOURCE_REQUEST_DOWN_PERCENTAGE=80
+* AUTOSCALE_RESOURCE_REQUEST_DOWN_PERCENTAGE=70
 * AUTOSCALE_QUERY_INTERVAL=10
 * AUTOSCALE_THRESHOLD_COUNT=3
 * AUTOSCALE_NUMBER_OF_NODES=2
 * AUTOSCALE_WAIT_TIME_AFTER_SCALING=180
 
 With this setup, the autoscaler utility will query the Kuberenetes API every 10 seconds. If with 3 consecutive calls
-to the API (effectively meaning over 30 seconds), the memory usage is higher than 65% or the requested memory exceeds 80% of the total memory available on the cluster, 2 more nodes will be added to the
+to the API (effectively meaning over 30 seconds), the requested memory exceeds 80% of the total memory available on the cluster, 2 more nodes will be added to the
 specified node pool. The utility will wait for 180 seconds and then start querying the API every 10 seconds again.
 
-If with 3 consecutive calls to the API (effectively meaning over 30 seconds), the memory usage is lower than 30% or the requested memory is below 80% of the total memory available on the cluster,
+If with 3 consecutive calls to the API (effectively meaning over 30 seconds), the requested memory is below 70% of the total memory available on the cluster,
 1 node will be removed (**nodes are always removed one at a time to ensure you don't run out of capacity all of a sudden**) from the specified node pool. The utility will wait for 180 seconds and then start 
+querying the API every 10 seconds again.
+
+Same example, with a different trigger type.
+* AUTOSCALE_TRIGGER=memory
+* AUTOSCALE_TRIGGER_TYPE=used
+* AUTOSCALE_UP_PERCENTAGE=65
+* AUTOSCALE_DOWN_PERCENTAGE=30
+* AUTOSCALE_RESOURCE_REQUEST_UP_PERCENTAGE=80
+* AUTOSCALE_RESOURCE_REQUEST_DOWN_PERCENTAGE=70
+* AUTOSCALE_QUERY_INTERVAL=10
+* AUTOSCALE_THRESHOLD_COUNT=3
+* AUTOSCALE_NUMBER_OF_NODES=2
+* AUTOSCALE_WAIT_TIME_AFTER_SCALING=180
+
+With this setup, the autoscaler utility will query the Kuberenetes API every 10 seconds. If with 3 consecutive calls
+to the API (effectively meaning over 30 seconds), the memory usage is higher than 65% of the total memory available on the cluster, 2 more nodes will be added to the
+specified node pool. The utility will wait for 180 seconds and then start querying the API every 10 seconds again.
+
+If with 3 consecutive calls to the API (effectively meaning over 30 seconds), the memory usage is below 30% of the total memory available on the cluster,
+1 node will be removed (**nodes are always removed one at a time to ensure you don't run out of capacity all of a sudden**) from the specified node pool. The utility will wait for 180 seconds and then start
 querying the API every 10 seconds again.
 
 ## Usage
