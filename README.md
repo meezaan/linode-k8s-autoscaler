@@ -39,7 +39,7 @@ The docker container takes all its configuration via environment variables. Here
 
 | Environment Variable Name | Description  | 
 | ------------------------- | ------------ | 
-| LINODE_PERSONAL_ACCCESS_TOKEN  | Your Personal Access Token with LKE scope | 
+| LINODE_PERSONAL_ACCESS_TOKEN  | Your Personal Access Token with LKE scope | 
 | LINODE_LKE_CLUSTER_ID          | The ID of the LKE Cluster to Autoscale |
 | LINODE_LKE_CLUSTER_POOL_ID     | The Node Pool ID within the LKE Cluster to Autoscale |
 | LINODE_LKE_CLUSTER_POOL_MINIMUM_NODES | The minimum nodes to keep in the cluster. The cluster won't be scaled down below this.|
