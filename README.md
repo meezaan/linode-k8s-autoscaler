@@ -5,7 +5,7 @@
 
 ## Linode Kubernetes Engine Autoscaler
 
-**Note (October 14, 2021) **: Linode has now released the Kubernetes autoscaler to all LKEs. Whilst this autoscaler still has some usage (particularly if you want to autoscale aggressively and in advance, it will no longer be actively maintained.
+**Note**: (October 14, 2021) Linode has now released the Kubernetes autoscaler to all LKEs. Whilst this autoscaler still has some usage (particularly if you want to autoscale aggressively and in advance, it will no longer be actively maintained.
 
 This is a simple autoscaling utility for horizontally scaling Linodes in an LKE
 Cluster Pool based on memory or cpu usage. This effectively means that you can use Kubernetes' horizontal pod autoscaling to scale up your pods and this utility to scale up your Linodes - so you can set this up and let your cluster scale up or down as needed.
